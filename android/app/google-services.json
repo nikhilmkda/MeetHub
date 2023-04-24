@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "795976632088",
+    "project_id": "nikhilschatapp",
+    "storage_bucket": "nikhilschatapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:795976632088:android:3bfcc72c60033c974f406d",
+        "android_client_info": {
+          "package_name": "com.example.chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "795976632088-aued22o6s86vbi4vl5j94s4hp9tdc1ka.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chat_app",
+            "certificate_hash": "48e1311f2b5c6f6ba35ab3f0d3b80d1f9e77b331"
+          }
+        },
+        {
+          "client_id": "795976632088-s5a4mr0td6mfjuoat0ivaih15dk063e4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMZW5dDJkZyFNOypMNFI16UFdX7BB2PnM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "795976632088-s5a4mr0td6mfjuoat0ivaih15dk063e4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
