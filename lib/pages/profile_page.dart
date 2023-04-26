@@ -1,24 +1,22 @@
-import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../helper/image_provider.dart';
 import '../service/auth_service.dart';
 import '../widgets/widget.dart';
 import 'auth/login_page.dart';
 import 'homepage.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final FirebaseAuth auth = FirebaseAuth.instance;
 final String currentuser = auth.currentUser!.uid;
 
 class ProfilePage extends StatefulWidget {
-  String userName;
-  String email;
+  final String userName;
+  final String email;
 
-  ProfilePage({Key? key, required this.email, required this.userName})
+  const ProfilePage({Key? key, required this.email, required this.userName})
       : super(key: key);
 
   @override
@@ -26,36 +24,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  AuthService authService = AuthService();
-  File? _image;
-
-  Future<void> getImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-      await uploadImageToFirebase(); // Wait for image upload to complete
-    }
-  }
-
-  Future<void> uploadImageToFirebase() async {
-    final firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('images/${DateTime.now()}');
-    final uploadTask = firebaseStorageRef.putFile(_image!);
-    final snapshot = await uploadTask.whenComplete(() => null);
-
-    final downloadUrl = await snapshot.ref.getDownloadURL();
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .update({'profilePic': downloadUrl});
-    }
-  }
+  // AuthService authService = AuthService();
 
   String? profilePicUrl;
   @override
@@ -65,6 +34,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final ProfileProvider profileProvider = ProfileProvider();
+    AuthServiceProvider authService =
+        Provider.of<AuthServiceProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -79,10 +51,44 @@ class _ProfilePageState extends State<ProfilePage> {
           child: ListView(
         padding: const EdgeInsets.symmetric(vertical: 50),
         children: <Widget>[
-          Icon(
-            Icons.account_circle,
-            size: 150,
-            color: Colors.grey[700],
+          StreamBuilder<DocumentSnapshot>(
+            stream: profileProvider.getUserStream(),
+            builder: (BuildContext context,
+                AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (snapshot.hasError) {
+                return CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage('assets/userimage.png'),
+                );
+              }
+
+              if (!snapshot.hasData) {
+                return CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage('assets/userimage.png'),
+                );
+              }
+
+              final data = snapshot.data!.data() as Map<String, dynamic>?;
+
+              if (data == null) {
+                return CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage('assets/userimage.png'),
+                );
+              }
+
+              final profilePicUrl = data['profilePic'] as String?;
+
+              return CircleAvatar(
+                radius: 110,
+                backgroundImage: profilePicUrl != null
+                    ? NetworkImage(
+                        profilePicUrl,
+                      ) as ImageProvider<Object>?
+                    : AssetImage('assets/userimage.png'),
+              );
+            },
           ),
           const SizedBox(
             height: 15,
@@ -176,10 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Stack(
               children: [
                 StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(currentuser)
-                      .snapshots(),
+                  stream: profileProvider.getUserStream(),
                   builder: (BuildContext context,
                       AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (snapshot.hasError) {
@@ -208,7 +211,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     final profilePicUrl = data['profilePic'] as String?;
 
                     return CircleAvatar(
-                      radius: 50,
+                      radius: 120,
                       backgroundImage: profilePicUrl != null
                           ? NetworkImage(
                               profilePicUrl,
@@ -218,10 +221,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                 ),
                 Positioned(
-                  bottom: 0,
-                  right: 0,
+                  bottom: 10,
+                  right: 10,
                   child: IconButton(
-                      icon: Icon(Icons.camera_alt), onPressed: getImage),
+                      icon: Icon(Icons.camera_alt),
+                      onPressed: profileProvider.getImage),
                 ),
               ],
             ),

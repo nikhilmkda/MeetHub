@@ -5,8 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../helper/helper_function.dart';
+import '../../helper/image_provider.dart';
 import '../../widgets/widget.dart';
 import '../homepage.dart';
 
@@ -22,9 +24,11 @@ class _LoginPageState extends State<LoginPage> {
   String email = "";
   String password = "";
   bool _isLoading = false;
-  AuthService authService = AuthService();
+  // AuthService authService = AuthService();
   @override
   Widget build(BuildContext context) {
+    AuthServiceProvider authService =
+        Provider.of<AuthServiceProvider>(context, listen: false);
     return Scaffold(
       body: _isLoading
           ? Center(
@@ -140,10 +144,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   login() async {
+    AuthServiceProvider authService =
+        Provider.of<AuthServiceProvider>(context, listen: false);
     if (formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      authService.setIsLoading(true);
+
       await authService
           .loginWithUserNameandPassword(email, password)
           .then((value) async {
@@ -158,9 +163,8 @@ class _LoginPageState extends State<LoginPage> {
           nextScreenReplace(context, const HomePage());
         } else {
           showSnackbar(context, Colors.red, value);
-          setState(() {
-            _isLoading = false;
-          });
+
+          authService.setIsLoading(false);
         }
       });
     }

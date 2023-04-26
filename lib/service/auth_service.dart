@@ -1,10 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '../helper/helper_function.dart';
 import 'database_service.dart';
 
-class AuthService {
+class AuthServiceProvider with ChangeNotifier {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  //bool check
+   bool _isLoading = false;
+
+  bool get isLoading => _isLoading;
+
+  void setIsLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
 
   // login
   Future loginWithUserNameandPassword(String email, String password) async {
@@ -19,6 +29,7 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       return e.message;
     }
+    notifyListeners();
   }
 
   // register
@@ -43,6 +54,7 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       return e.message;
     }
+    notifyListeners();
   }
 
   // signout
@@ -55,5 +67,6 @@ class AuthService {
     } catch (e) {
       return null;
     }
+    notifyListeners();
   }
 }

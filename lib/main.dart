@@ -1,12 +1,15 @@
 import 'package:chat_app/pages/auth/login_page.dart';
 import 'package:chat_app/pages/homepage.dart';
+import 'package:chat_app/service/auth_service.dart';
+import 'package:chat_app/service/database_service.dart';
 import 'package:chat_app/shared/constants.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-
+import 'package:provider/provider.dart';
 import 'helper/helper_function.dart';
+import 'helper/image_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +25,22 @@ void main() async {
     await Firebase.initializeApp();
   }
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (_) => ProfileProvider(),
+        ),
+        ChangeNotifierProvider<AuthServiceProvider>(
+          create: (_) => AuthServiceProvider(),
+        ),
+        ChangeNotifierProvider<DatabaseService>(
+          create: (_) => DatabaseService(),
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

@@ -3,10 +3,12 @@ import 'package:chat_app/pages/search_page.dart';
 import 'package:chat_app/service/auth_service.dart';
 import 'package:chat_app/service/database_service.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../helper/helper_function.dart';
+import '../helper/image_provider.dart';
 import '../widgets/group_tile.dart';
 import 'auth/login_page.dart';
 
@@ -21,7 +23,7 @@ class _HomePageState extends State<HomePage> {
   String userName = "";
   String email = "";
   String profilePIC = "";
-  AuthService authService = AuthService();
+  AuthServiceProvider authService = AuthServiceProvider();
   Stream? groups;
   bool _isLoading = false;
   String groupName = "";
@@ -58,11 +60,11 @@ class _HomePageState extends State<HomePage> {
         groups = snapshot;
       });
     });
-     
   }
 
   @override
   Widget build(BuildContext context) {
+    final ProfileProvider profileProvider = ProfileProvider();
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -87,10 +89,44 @@ class _HomePageState extends State<HomePage> {
           child: ListView(
         padding: const EdgeInsets.symmetric(vertical: 50),
         children: <Widget>[
-          Icon(
-            Icons.account_circle,
-            size: 150,
-            color: Colors.grey[700],
+          StreamBuilder<DocumentSnapshot>(
+            stream: profileProvider.getUserStream(),
+            builder: (BuildContext context,
+                AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (snapshot.hasError) {
+                return CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage('assets/userimage.png'),
+                );
+              }
+
+              if (!snapshot.hasData) {
+                return CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage('assets/userimage.png'),
+                );
+              }
+
+              final data = snapshot.data!.data() as Map<String, dynamic>?;
+
+              if (data == null) {
+                return CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage('assets/userimage.png'),
+                );
+              }
+
+              final profilePicUrl = data['profilePic'] as String?;
+
+              return CircleAvatar(
+                radius: 110,
+                backgroundImage: profilePicUrl != null
+                    ? NetworkImage(
+                        profilePicUrl,
+                      ) as ImageProvider<Object>?
+                    : AssetImage('assets/userimage.png'),
+              );
+            },
           ),
           const SizedBox(
             height: 15,

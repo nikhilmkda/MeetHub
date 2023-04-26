@@ -1,6 +1,7 @@
 import 'package:chat_app/pages/auth/login_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../helper/helper_function.dart';
 import '../../service/auth_service.dart';
@@ -16,16 +17,18 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
+  // bool _isLoading = false;
   String email = "";
   String password = "";
   String fullName = "";
-  
-  AuthService authService = AuthService();
+
+  // AuthService authService = AuthService();
   @override
   Widget build(BuildContext context) {
+    AuthServiceProvider authService = Provider.of<AuthServiceProvider>(context, listen: false);
+
     return Scaffold(
-      body: _isLoading
+      body: authService.isLoading
           ? Center(
               child: CircularProgressIndicator(
                   color: Theme.of(context).primaryColor))
@@ -161,13 +164,16 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   register() async {
+    AuthServiceProvider authService = Provider.of<AuthServiceProvider>(context, listen: false);
     if (formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      authService.setIsLoading(true);
+
       await authService
           .registerUserWithEmailandPassword(
-              fullName, email, password, )
+        fullName,
+        email,
+        password,
+      )
           .then((value) async {
         if (value == true) {
           // saving the shared preference state
@@ -177,9 +183,8 @@ class _RegisterPageState extends State<RegisterPage> {
           nextScreenReplace(context, const HomePage());
         } else {
           showSnackbar(context, Colors.red, value);
-          setState(() {
-            _isLoading = false;
-          });
+
+          authService.setIsLoading(false);
         }
       });
     }

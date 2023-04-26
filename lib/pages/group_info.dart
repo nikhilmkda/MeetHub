@@ -1,6 +1,9 @@
+import 'package:chat_app/pages/profile_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../helper/image_provider.dart';
 import '../service/database_service.dart';
 import '../widgets/widget.dart';
 import 'homepage.dart';
@@ -38,6 +41,18 @@ class _GroupInfoState extends State<GroupInfo> {
     });
   }
 
+  Future<String?> getProfilePictureUrl(String uid) async {
+    final userDoc =
+        FirebaseFirestore.instance.collection('users').doc(getId(uid));
+    final userSnapshot = await userDoc.get();
+    final userData = userSnapshot.data();
+    if (userData != null && userData['profilePic'] != null) {
+      return userData['profilePic'];
+    } else {
+      return null;
+    }
+  }
+
   String getName(String r) {
     return r.substring(r.indexOf("_") + 1);
   }
@@ -48,6 +63,8 @@ class _GroupInfoState extends State<GroupInfo> {
 
   @override
   Widget build(BuildContext context) {
+    final DatabaseService databaseService = DatabaseService();
+    final ProfileProvider profileProvider = ProfileProvider();
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -111,13 +128,27 @@ class _GroupInfoState extends State<GroupInfo> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Theme.of(context).primaryColor,
-                  child: Text(
-                    widget.groupName.substring(0, 1).toUpperCase(),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w500, color: Colors.white),
+                SizedBox(
+                  width: 56,
+                  child: FutureBuilder(
+                    future: databaseService.getadminDP(widget.groupId),
+                    builder: (BuildContext context, AsyncSnapshot dpSnapshot) {
+                      if (dpSnapshot.hasData) {
+                        if (dpSnapshot.data.isEmpty) {
+                          return CircleAvatar(
+                            backgroundImage: AssetImage('assets/userimage.png'),
+                          );
+                        } else {
+                          return CircleAvatar(
+                            backgroundImage: NetworkImage(dpSnapshot.data),
+                          );
+                        }
+                      } else {
+                        return CircleAvatar(
+                          backgroundImage: AssetImage('assets/userimage.png'),
+                        );
+                      }
+                    },
                   ),
                 ),
                 const SizedBox(
@@ -156,26 +187,51 @@ class _GroupInfoState extends State<GroupInfo> {
                 itemCount: snapshot.data['members'].length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  return Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Theme.of(context).primaryColor,
-                        child: Text(
-                          getName(snapshot.data['members'][index])
-                              .substring(0, 1)
-                              .toUpperCase(),
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold),
+                  return Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 10),
+                        child: SizedBox(
+                          height: 100,
+                          child: ListTile(
+                            leading: SizedBox(
+                              width: 56,
+                              child: FutureBuilder(
+                                future: DatabaseService()
+                                    .getmembersDP(widget.groupId, index),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot dpSnapshot) {
+                                  if (dpSnapshot.hasData) {
+                                    if (dpSnapshot.data.isEmpty) {
+                                      return CircleAvatar(
+                                        backgroundImage:
+                                            AssetImage('assets/userimage.png'),
+                                      );
+                                    } else {
+                                      return CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(dpSnapshot.data),
+                                      );
+                                    }
+                                  } else {
+                                    return CircleAvatar(
+                                      backgroundImage:
+                                          AssetImage('assets/userimage.png'),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                            title: Text(
+                              getName(snapshot.data['members'][index]),
+                            ),
+                            subtitle: Text(
+                                '${getId(snapshot.data['members'][index])}'),
+                          ),
                         ),
                       ),
-                      title: Text(getName(snapshot.data['members'][index])),
-                      subtitle: Text(getId(snapshot.data['members'][index])),
-                    ),
+                    ],
                   );
                 },
               );
