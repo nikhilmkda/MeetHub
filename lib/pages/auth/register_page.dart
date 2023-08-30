@@ -25,7 +25,8 @@ class _RegisterPageState extends State<RegisterPage> {
   // AuthService authService = AuthService();
   @override
   Widget build(BuildContext context) {
-    AuthServiceProvider authService = Provider.of<AuthServiceProvider>(context, listen: false);
+    AuthServiceProvider authService =
+        Provider.of<AuthServiceProvider>(context, listen: false);
 
     return Scaffold(
       body: authService.isLoading
@@ -43,14 +44,15 @@ class _RegisterPageState extends State<RegisterPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
-                        "Groupie",
+                        "MeetHub",
                         style: TextStyle(
                             fontSize: 40, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10),
-                      const Text("Create your account now to chat nd explore",
+                      const Text(
+                          " Discover Connections by Creating Your Account Now",
                           style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w400)),
+                              fontSize: 14, fontWeight: FontWeight.w400)),
                       Image.asset("assets/register.png"),
                       TextFormField(
                         decoration: textInputDecoration.copyWith(
@@ -164,7 +166,8 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   register() async {
-    AuthServiceProvider authService = Provider.of<AuthServiceProvider>(context, listen: false);
+    AuthServiceProvider authService =
+        Provider.of<AuthServiceProvider>(context, listen: false);
     if (formKey.currentState!.validate()) {
       authService.setIsLoading(true);
 

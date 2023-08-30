@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
-                        "Groupie",
+                        "MeetHub",
                         style: TextStyle(
                             fontSize: 40, fontWeight: FontWeight.bold),
                       ),

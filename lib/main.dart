@@ -7,6 +7,7 @@ import 'package:chat_app/shared/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'helper/helper_function.dart';
 import 'helper/image_provider.dart';
@@ -29,14 +30,11 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<ProfileProvider>(
-          create: (_) => ProfileProvider(),
-        ),
+            create: (_) => ProfileProvider()),
         ChangeNotifierProvider<AuthServiceProvider>(
-          create: (_) => AuthServiceProvider(),
-        ),
+            create: (_) => AuthServiceProvider()),
         ChangeNotifierProvider<DatabaseService>(
-          create: (_) => DatabaseService(),
-        ),
+            create: (_) => DatabaseService()),
       ],
       child: MyApp(),
     ),
@@ -57,6 +55,20 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     getUserLoggedInStatus();
+    requestStoragePermission();
+  }
+
+  Future<void> requestStoragePermission() async {
+    // Request storage permission
+    PermissionStatus status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      print('Storage permission granted');
+    } else if (status.isDenied) {
+      print('Storage permission denied');
+    } else if (status.isPermanentlyDenied) {
+      print('Storage permission permanently denied');
+    }
   }
 
   getUserLoggedInStatus() async {

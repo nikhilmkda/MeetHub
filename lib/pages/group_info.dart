@@ -1,9 +1,7 @@
-import 'package:chat_app/pages/profile_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../helper/image_provider.dart';
 import '../service/database_service.dart';
 import '../widgets/widget.dart';
 import 'homepage.dart';
@@ -64,7 +62,7 @@ class _GroupInfoState extends State<GroupInfo> {
   @override
   Widget build(BuildContext context) {
     final DatabaseService databaseService = DatabaseService();
-    final ProfileProvider profileProvider = ProfileProvider();
+   // final ProfileProvider profileProvider = ProfileProvider();
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
