@@ -11,7 +11,22 @@ A group chat app built with Flutter and Firebase, allowing users to create group
 - Group information and admin details.
 - Group member list with profile pictures.
 
+## State Management
 
+
+
+- **Provider:** For managing global state, user authentication, and user profile details.
+
+
+## Local Data Storage
+
+- **Shared Preferences:** User login status, username, and email are stored using Shared Preferences for quick access.
+
+## Firebase Integration
+
+- **Firebase Authentication:** Handles user authentication and registration.
+- **Firebase Firestore:** Stores group information, messages, and user profiles.
+- **Firebase Storage:** Stores user profile pictures.
 
 ## Getting Started
 
